@@ -1,0 +1,25 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "data-science-projects"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - about.qmd
+      - housing.qmd
+
+    right:
+      - icon: github
+        href: https://github.com/NathanielObeso
+
+format:
+  html:
+    theme: cerulean
+    css: styles.css
+    toc: true
+
+
+
