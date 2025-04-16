@@ -10,28 +10,112 @@ library(tidyverse)
 library(janitor)
 library(httr2)
 library(robotstxt)
+
+SoCalRent1 <- readr::read_csv(here::here("../Data", "SoCalRent1.csv"))
+SoCalRent2 <- readr::read_csv(here::here("../Data", "SoCalRent2.csv"))
 ```
 
 ```{r}
-#| label: Importing all datasets for this project
+#| label: import relevant datasets
 
-paths_allowed("https://www.zillow.com/orange-county-ca/rent-houses/")
-
-req <- request("https://www.zillow.com") %>% 
-  req_url_path("orange-county-ca/rent-houses/")
-```
-
-```{r}
-
-req %>% 
-  req_dry_run()
-
-resp <- req %>% 
-  req_perform()
-```
-
-```{r}
-
-LoansOC <- readr::read_csv(here::here("../Data", "loans_OC.csv"))
+LaRent <- readr::read_csv(here::here("../Data", "2025SoCalRent - Sheet1.csv"))
 LoansLAC <- readr::read_csv(here::here("../Data", "loans_lac_2022.csv"))
+```
+
+```{r}
+#| label: exploring the data
+
+LaRent %>% 
+  group_by(Type) %>% 
+  summarize(
+    mean_price = mean(Price)
+  )
+  
+LaRent %>% 
+  summarize(
+    mean_price = mean(Price)
+  )
+```
+
+```{r}
+#| label: seeing the range of prices for each type of house
+
+ggplot(LaRent, aes(x = Price, y = Type)) +
+  geom_boxplot()
+
+LaRent %>% 
+  group_by(Type) %>% 
+    summarize(
+      min_price = min(Price),
+      q1_price = quantile(Price, 0.25),
+      med_price = median(Price),
+      q3_price = quantile(Price, 0.75),
+      max_price = max(Price)
+    )
+```
+
+There appears to be a massive outlier here. It is a 7 bed, 6.5 bath house in hidden hills that is 6500 sq. ft. that costs \$27,000! That is over \$20,000 more than the third quartile of the price range for houses! So, we will obviously remove that.
+
+```{r}
+#| label: removing the massive outlier in terms of Price
+
+LaRent_1 <- LaRent %>% 
+  filter(Price < 20000)
+
+LaRent_1 %>% 
+  group_by(Type) %>% 
+  summarize(
+    mean_price = mean(Price)
+  )
+
+LaRent_1 %>% 
+  summarize(
+    min_price = min(Price),
+    q1_price = quantile(Price, 0.25),
+    med_price = median(Price),
+    q3_price = quantile(Price, 0.75),
+    max_price = max(Price)
+  )
+
+ggplot(LaRent, aes(x = SqFt, y = Type)) +
+  geom_boxplot()
+
+ggplot(LaRent_1, aes(x = SqFt, y = Type)) +
+  geom_boxplot()
+
+LaRent_1 %>% 
+  summarize(
+    min_sqft = min(SqFt),
+    q1_sqft = quantile(SqFt, 0.25),
+    med_sqft = median(SqFt),
+    q3_sqft = quantile(SqFt, 0.75),
+    max_sqft = max(SqFt)
+  )
+```
+
+When we remove it, the average rent price of a house is now \$6250.03, which is about \$600 less than it was including the outlier. It is worth noting that the only things that are worth more than \$10,000 are houses, which makes sense because houses tend to have more square feet. Speaking of square feet, the same outlier also has the highest square feet of any home in the entire dataset! Nearly 4,000 more square feet than the third quartile! Whereas there are still outliers for prices of a house, however, the highest value is only just above 3,500 square feet (3,614 to be exact), which is another house that costs over \$10,000 as the house itself costs \$15,500.
+
+```{r}
+LaRent %>% 
+  arrange(desc(Price), desc(Beds)) %>% 
+  head(10)
+```
+
+Looking at the dataset, those are also the houses with the most bedrooms, which makes them perfect candidates to be eliminated since they also contain the two highest prices, so let's get rid of those two:
+
+```{r}
+LaRent_1 <- LaRent %>% 
+  filter(Beds < 6)
+
+ggplot(LaRent_1, aes(x = Price, y = Type)) +
+  geom_boxplot()
+
+LaRent_1 %>% 
+  summarize(
+    min_sqft = min(Price),
+    q1_sqft = quantile(Price, 0.25),
+    med_sqft = median(Price),
+    q3_sqft = quantile(Price, 0.75),
+    max_sqft = max(Price)
+  )
 ```
