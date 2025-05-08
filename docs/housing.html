@@ -163,6 +163,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#data-massaging" id="toc-data-massaging" class="nav-link" data-scroll-target="#data-massaging">Data Massaging</a></li>
   <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a></li>
   <li><a href="#modeling" id="toc-modeling" class="nav-link" data-scroll-target="#modeling">Modeling</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
   </ul>
 </nav>
     </div>
@@ -512,13 +514,13 @@ Caused by warning:
 </section>
 <section id="modeling" class="level2">
 <h2 class="anchored" data-anchor-id="modeling">Modeling</h2>
-<p>In order to see the true relationship, let’s do some Bayesian Inference</p>
+<p>In order to see the true relationship, let’s do some Bayesian Inference.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>bayes_SoCalRent <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  price <span class="sc">~</span> county,</span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> SoCalRent2025_1,</span>
 <span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"gaussian"</span>,</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">normal</span>(<span class="at">location =</span> <span class="dv">4</span>, <span class="at">autoscale =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">normal</span>(<span class="at">location =</span> <span class="dv">3</span>, <span class="at">autoscale =</span> <span class="cn">TRUE</span>),</span>
 <span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior_intercept =</span> <span class="fu">default_prior_intercept</span>(),</span>
 <span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1</span></span>
 <span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -526,8 +528,8 @@ Caused by warning:
 <pre><code>
 SAMPLING FOR MODEL 'continuous' NOW (CHAIN 1).
 Chain 1: 
-Chain 1: Gradient evaluation took 3.8e-05 seconds
-Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.38 seconds.
+Chain 1: Gradient evaluation took 4.1e-05 seconds
+Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.41 seconds.
 Chain 1: Adjust your expectations accordingly!
 Chain 1: 
 Chain 1: 
@@ -544,15 +546,15 @@ Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
 Chain 1: 
-Chain 1:  Elapsed Time: 0.107 seconds (Warm-up)
-Chain 1:                0.051 seconds (Sampling)
-Chain 1:                0.158 seconds (Total)
+Chain 1:  Elapsed Time: 0.245 seconds (Warm-up)
+Chain 1:                0.042 seconds (Sampling)
+Chain 1:                0.287 seconds (Total)
 Chain 1: 
 
 SAMPLING FOR MODEL 'continuous' NOW (CHAIN 2).
 Chain 2: 
-Chain 2: Gradient evaluation took 1.3e-05 seconds
-Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.13 seconds.
+Chain 2: Gradient evaluation took 7e-06 seconds
+Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.07 seconds.
 Chain 2: Adjust your expectations accordingly!
 Chain 2: 
 Chain 2: 
@@ -569,15 +571,15 @@ Chain 2: Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
 Chain 2: 
-Chain 2:  Elapsed Time: 0.12 seconds (Warm-up)
+Chain 2:  Elapsed Time: 0.26 seconds (Warm-up)
 Chain 2:                0.042 seconds (Sampling)
-Chain 2:                0.162 seconds (Total)
+Chain 2:                0.302 seconds (Total)
 Chain 2: 
 
 SAMPLING FOR MODEL 'continuous' NOW (CHAIN 3).
 Chain 3: 
-Chain 3: Gradient evaluation took 4e-06 seconds
-Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.04 seconds.
+Chain 3: Gradient evaluation took 1.6e-05 seconds
+Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.16 seconds.
 Chain 3: Adjust your expectations accordingly!
 Chain 3: 
 Chain 3: 
@@ -594,15 +596,15 @@ Chain 3: Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
 Chain 3: 
-Chain 3:  Elapsed Time: 0.087 seconds (Warm-up)
+Chain 3:  Elapsed Time: 0.057 seconds (Warm-up)
 Chain 3:                0.042 seconds (Sampling)
-Chain 3:                0.129 seconds (Total)
+Chain 3:                0.099 seconds (Total)
 Chain 3: 
 
 SAMPLING FOR MODEL 'continuous' NOW (CHAIN 4).
 Chain 4: 
-Chain 4: Gradient evaluation took 3e-06 seconds
-Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.03 seconds.
+Chain 4: Gradient evaluation took 4e-06 seconds
+Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.04 seconds.
 Chain 4: Adjust your expectations accordingly!
 Chain 4: 
 Chain 4: 
@@ -619,9 +621,9 @@ Chain 4: Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
 Chain 4: 
-Chain 4:  Elapsed Time: 0.128 seconds (Warm-up)
-Chain 4:                0.042 seconds (Sampling)
-Chain 4:                0.17 seconds (Total)
+Chain 4:  Elapsed Time: 0.167 seconds (Warm-up)
+Chain 4:                0.041 seconds (Sampling)
+Chain 4:                0.208 seconds (Total)
 Chain 4: </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>SoCalRent_dist <span class="ot">&lt;-</span> bayes_SoCalRent <span class="sc">%&gt;%</span> </span>
@@ -629,16 +631,16 @@ Chain 4: </code></pre>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(SoCalRent_dist)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  (Intercept)  countyOC countyRIV    sigma
-1    3892.749  624.3499 -1182.720 2141.364
-2    3841.210  633.9344 -1869.290 2195.738
-3    4174.430  307.2422 -1051.120 2193.546
-4    3748.992 1090.4108 -1240.302 2116.386
-5    4262.676  229.4585 -1526.647 2162.494
-6    4248.695  217.4549 -1766.579 2046.050</code></pre>
+<pre><code>  (Intercept)   countyOC countyRIV    sigma
+1    4353.397  133.11832 -1909.751 2189.116
+2    4031.338  843.28230 -1674.247 2045.879
+3    4284.292 -107.72874 -1828.113 1974.467
+4    4264.231  -14.24143 -1747.386 2175.238
+5    3955.693  831.54330 -1172.684 2104.970
+6    4017.623  715.63911 -1099.151 2088.857</code></pre>
 </div>
 </div>
-<p>The reference level is LA county, so we are comparing it to Orange County and Riverside County.</p>
+<p>The reference level is LA county, and we are comparing it to Orange County and Riverside County.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  bayes_SoCalRent,</span>
@@ -655,9 +657,10 @@ Chain 4: </code></pre>
 </div>
 </div>
 </div>
+<p>We see the rent in LA is clearly higher than in Riverside, but there doesn’t seem to be a significant difference between the rents of LA and Orange County.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>predicted_house <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">county =</span> <span class="fu">c</span>(<span class="st">"OC"</span>, <span class="st">"LA"</span>, <span class="st">"RIV"</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">county =</span> <span class="fu">c</span>(<span class="st">"OC"</span>, <span class="st">"RIV"</span>)</span>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>predicted_rents <span class="ot">&lt;-</span> bayes_SoCalRent <span class="sc">%&gt;%</span> </span>
@@ -694,12 +697,19 @@ Chain 4: </code></pre>
 <span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">prob =</span> <span class="fl">0.90</span></span>
 <span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                   5%        95%
-countyOC    -73.07496   845.4032
-countyRIV -2082.80150 -1133.8731</code></pre>
+<pre><code>                  5%        95%
+countyOC   -100.7536   842.4131
+countyRIV -2094.6339 -1135.4284</code></pre>
 </div>
 </div>
-<p>We can see that there is a 90% chance that the slope of the population model is between -66.89678 and 1097.220. This implies that there is no distinct difference in prices between the counties of LA and OC.</p>
+<p>We can see that there is a 90% chance that the slope of the population model, assuming everything else stays constant, for an Orange County house compared to one in LA is between -100.7536 and 842.4131. This implies that there is no distinct difference in prices between the counties of LA and OC. There is also a 90% chance that the slope of the population model, assuming everything else stays constant, for a Riverside house compared to one in LA is between -2094.6339 and -1135.4284, meaning that Riverside houses tend to be cheaper to rent than LA houses.</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+</section>
+<section id="limitations" class="level2">
+<h2 class="anchored" data-anchor-id="limitations">Limitations</h2>
+<p>The data was collected on a specific date, so things may have changed by then. The problem is since they can change on a day-by-day basis, the data is not always the most accurate since houses can be taken off or rent could go up. Also, as mentioned earlier, there isn’t variables that are about the city, as the only one I could think of that was in the dataset with any real impact was square feet, and I didn’t feel like there was much of a difference between the counties’ average square feet.</p>
 
 
 </section>

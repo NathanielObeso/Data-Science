@@ -84,7 +84,7 @@ SoCalRent2025 |>
   
 ```
 
-The dataset SoCalRent2025 features three counties: Los Angeles (LA), Orange (OC), and Riverside (RIV). The distribution is fairly even, with each county having 100 houses apiece to ensure everything is almost equally represented. The main thing that stood out was the mean price of LA County and Orange County are both much higher than that of Riverside, though I wanted to focus on LA County and Orange County to see if there was a difference between those two.
+This summary shows that the distribution is fairly even, with each county having 100 houses apiece. This was created ensure everything is almost equally represented. The dataset SoCalRent2025 features three counties: Los Angeles (LA), Orange (OC), and Riverside (RIV). The main thing that stood out was the mean price of LA County and Orange County are both much higher than that of Riverside, though I am mainly interested in focusing on LA County and Orange County to see if there was a difference between those two.
 
 ```{r}
 #| label: seeing the range of prices for each type of house
@@ -107,7 +107,7 @@ ggplot(SoCalRent2025, aes(x = price, y = county)) +
      ) # Numerical summary of the boxplot
 ```
 
-This graph is displaying the amount of outliers that are present in the dataset in terms of price, and there are two are stick out like a sore thumb.
+This graph is displaying the amount of outliers that are present in the dataset in terms of price, and there are two are stick out like a sore thumb. Both are prices at or above $20000. The table is a numerical summary of the boxplots, which also shows the distribution of prices and shows how Orange County tends to have more expensive houses than the others, at least in this dataset. Both were created to show the distribution of prices by county.
 
 ```{r}
 #| label: investigating the outliers in terms of price
@@ -116,42 +116,30 @@ SoCalRent2025 %>%
    filter(price >= 20000)
 ```
 
-Right off the bat, a rent for \$30000 in OC, a house in Anaheim that has 2 bedrooms and 2 bathrooms. It doesn't sound like it is the norm, so we will remove this outlier. We can also filter out the \$20000 rent in LA county because that is the other thing that is way above the rest of the prices, plus it's a West Hills house that has square feet, bedrooms, and bathrooms of all the houses.
-
-```{r}
-#| label: removing the massive outliers in terms of Price and Square Feet
-
-SoCalRent2025_1 <- SoCalRent2025 %>% 
-  filter(price < 20000) %>% 
-  mutate(
-    `sq ft` = as.numeric(`sq ft`)
-  ) # makes square feet numeric
-
-ggplot(SoCalRent2025_1, aes(x = `sq ft`, y = type)) +
-   geom_boxplot()
-```
+This figure shows the two outliers that I noticed. Right off the bat, a rent for \$30000 in OC, a house in Anaheim that has 2 bedrooms and 2 bathrooms. It doesn't sound like it is the norm, so we will remove this outlier. We can also filter out the \$20000 rent in LA county because that is the other thing that is way above the rest of the prices, plus it's a West Hills house that has the highest square feet, bedrooms, and bathrooms of all the remaining houses.
 
 ```{r}
 #| label: new price by county summary and price five-number summary
+
+SoCalRent2025_1 <- SoCalRent2025 %>% 
+  filter(price < 20000) # creating SoCalRent2025_1
+
+ggplot(SoCalRent2025_1, aes(x = price, y = county)) +
+  geom_boxplot() +
+  labs(
+    x = "Price",
+    y = "County"
+  )
 
 SoCalRent2025_1 %>%
   group_by(county) %>%
   summarize(
     mean_price = mean(price)
-  )
-
-SoCalRent2025_1 %>%
-  summarize(
-    min_price = min(price),
-    q1_price = quantile(price, 0.25),
-    med_price = median(price),
-    q3_price = quantile(price, 0.75),
-    max_price = max(price)
-  )
+  ) # numerical summary of the boxplot
 
 ```
 
-We have the remaining prices, and it appears that Orange County, on average, has higher rent than Los Angeles County. One variable that makes sense to explain is square feet of the houses:
+These figures show the summaries after we have filtered out those data points. In the first figure, we bring it down to a maximum price of \$14000 and a median price of \$3097.5, which, considering how many houses over \$10000 are in the dataset, make sense to keep, even if they're considered outliers, since they're close enough to the rest of the data. The second figure shows that Orange County, on average, has higher rent than Los Angeles County. One variable in the dataset that makes sense to explain this is square feet of the houses:
 
 ```{r}
 #| label: boxplots for square feet by county
@@ -162,6 +150,33 @@ ggplot(SoCalRent2025_1, aes(x = min_sq_ft, y = county)) +
 ggplot(SoCalRent2025_1, aes(x = max_sq_ft, y = county)) +
    geom_boxplot()
 ```
+
+This histogram shows the square feet by county, adjusted by the minimum and maximum square feet for each house that had a range of areas. It was created to display the distribution of square feet by county as part of our exploratory data analysis.
+
+```{r}
+#| label: show the relationship between type of house and square feet
+
+ggplot(SoCalRent2025_1, aes(x = min_sq_ft, y = type)) +
+   geom_boxplot() # using minimum square feet values
+
+ggplot(SoCalRent2025_1, aes(x = max_sq_ft, y = type)) +
+   geom_boxplot() # using maximum square feet values
+```
+This boxplot was created as a potential variable to explain square feet. We see from this graph that houses tend to be bigger than both condos and apartments. It is worth noting that apartments were the only things that had a range of values for their square feet, so not much changed between the condos and houses, but it is interesting that when we take the maximum square feet value for each apartment, they are very similar to condos.
+
+
+```{r}
+#| label: show each type of house by county
+
+SoCalRent2025_1 %>% 
+  group_by(county, type) %>% 
+  summarize(
+    count = n()
+  )
+```
+
+Now we have to explore the distribution of house type by county, and it appears very even except for Riverside only having 25 condos. This ties into the counties all having similar average square feet in their houses, whether they were using the minimums or maximums.
+
 
 Now, there are two different values due to some having ranges as part of their dataset. Here is a summary of the boxplots:
 
@@ -178,8 +193,10 @@ SoCalRent2025_1 %>%
        q3_sq_ft = quantile(min_sq_ft, 0.75),
        max_sq_ft = max(min_sq_ft),
        mean_sq_ft = mean(min_sq_ft)
-     )
+     ) # five-number summary with minimum square feet values
 ```
+This first one is the square feet when taking all the minimum values for those in the range. We see there are places where they are very similar, such as the median, though the mean square feet of a residence in Orange County is relatively high compared to the mean square feet of the other two when using minimum values.
+
 
 ```{r}
 #| label: updated summary of the maximum square feet values
@@ -194,20 +211,20 @@ SoCalRent2025_1 %>%
        q3_sq_ft = quantile(max_sq_ft, 0.75),
        maximum_sq_ft = max(max_sq_ft),
        mean_sq_ft = mean(max_sq_ft)
-     )
+     ) # five-number summary with maximum square feet values
 ```
 
-So the datasets have quite some notable differences, though it may not be a fair representation as some of the minimum values by county don't even change, labeling things as outliers in maximum prices even though they are not in the minimum prices. Square feet doesn't appear to play a big factor, as they are all extremely similar between the counties.
+So the datasets have quite some notable differences, though it may not be a fair representation as some of the minimum values by county don't even change, labeling things as outliers when we look at all maximum prices even though they are not when we look at all the minimum prices. Square feet doesn't appear to play a big factor, as they are all extremely similar between the counties.
 
-With everything filtered out in terms of price, here is the final dataset in graph form:
+And now, a histogram that shows the prices between the counties:
 
 ```{r}
 #| label: histogram of final dataset by price
 
-condition <- if_else(SoCalRent2025_1$price < 6000, "True", "False")
+condition <- if_else(SoCalRent2025_1$price < 6000, "True", "False") # colors will be different depending on if price < 6000 or not on a histogram
 
 ggplot(SoCalRent2025_1, aes(x = price, fill = condition)) +
-  geom_histogram(bins = 10) +
+  geom_histogram(bins = 15) +
   labs(
     title = "Rent Distrbution by County",
     x = "Price",
@@ -219,7 +236,7 @@ ggplot(SoCalRent2025_1, aes(x = price, fill = condition)) +
       size = 24,
       face = "bold"
     ),
-    plot.margin = margin(t = 10, r = 20, b = 30, l = 10),
+    plot.margin = margin(t = 10, r = 30, b = 30, l = 10),
     axis.title.x = element_text( # X-axis label
       size = 20
     ),
@@ -240,33 +257,42 @@ ggplot(SoCalRent2025_1, aes(x = price, fill = condition)) +
                  "OC" = "Orange County",
                  "RIV" = "Riverside County"
                )
-             )) +
-  scale_fill_manual(values = c("True" = "red", "False" = "blue"))
+             )) + # plots for each county
+  scale_fill_manual(values = c("True" = "red", "False" = "blue"), labels = c(">=6000", "<6000")) # legend to show the condition
 ```
+
+We can see that both Los Angeles County and Orange County have houses at or above $6000 in rent while none in Riverside have higher than about \$5000. This definitely shows that Riverside houses tend to be cheaper to rent than those in Los Angeles County and Orange County. However, what I am mainly interested in is what the relationship between Los Angeles County and Orange County is like.
+
 
 ## Modeling
 
 In order to see the true relationship, let's do some Bayesian Inference.
 
 ```{r}
+#| label: fit Bayesian regression model
+
 bayes_SoCalRent <- stan_glm(
   price ~ county,
   data = SoCalRent2025_1,
   family = "gaussian",
-  prior = normal(location = 4, autoscale = TRUE),
+  prior = normal(location = 3, autoscale = TRUE),
   prior_intercept = default_prior_intercept(),
   seed = 1
 )
 
 SoCalRent_dist <- bayes_SoCalRent %>% 
-  as.data.frame()
+  as.data.frame() # making the posterior distribution
 
 head(SoCalRent_dist)
 ```
+Here, we are making a posterior distribution, which reflects updated beliefs after we have seen the housing rent data. This gives us an idea of what the relationship between the counties looks like.
+
 
 The reference level is LA county, and we are comparing it to Orange County and Riverside County.
 
 ```{r}
+#| label: histogram of the posterior distribution
+
 plot(
   bayes_SoCalRent,
   pars = c("countyOC", "countyRIV"),
@@ -276,20 +302,25 @@ plot(
   labs(x = "Slope by county")
 ```
 
+We can see from the graph that the rent in LA is clearly higher than in Riverside, but there doesn't seem to be a significant difference between the rents of LA and Orange County.
+
 ```{r}
+#| label: make some posterior predictions about houses in different counties compared to LA
+
 predicted_house <- data.frame(
-  county = c("OC", "LA", "RIV")
-)
+  county = c("OC", "RIV")
+) # using the other two counties
 
 predicted_rents <- bayes_SoCalRent %>% 
   posterior_predict(
     newdata = predicted_house,
     draws = 1000,
     seed = 1
-  )
+  ) # make posterior predictions
 ```
 
 ```{r}
+#| label: creates a histogram of predicted rents
 predicted_rents_df <- predicted_rents %>% 
   as.data.frame()
 
@@ -304,12 +335,26 @@ ggplot(data = predicted_rents_df,
        y = "Number of Simulated Houses"
   )
 
+```
+
+Predicted rent prices are pretty interesting, I experimented with a few priors, but all of them predicted negative rent price, so I just went with what I felt worked best.
+
+```{r}
+#| label: create posterior interval
+
 bayes_SoCalRent |>
   posterior_interval(
       pars = c("countyOC", "countyRIV"),
       prob = 0.90
     )
-
 ```
 
-We can see that there is a 90% chance that the slope of the population model is between -66.89678 and 1097.220. This implies that there is no distinct difference in prices between the counties of LA and OC.
+We can see that there is a 90% chance that the slope of the population model, assuming everything else stays constant, for an Orange County house compared to one in LA is between -100.7536 and 842.4131. This implies that there is no distinct difference in prices between the counties of LA and OC. There is also a 90% chance that the slope of the population model, assuming everything else stays constant, for a Riverside house compared to one in LA is between -2094.6339 and -1135.4284, meaning that Riverside houses tend to be cheaper to rent than LA houses.
+
+## Conclusion
+
+Los Angeles County and Orange County are both great places to live in, and the rent of the houses in those places are very similar. There doesn't appear to be a significant difference between the two counties. Riverside houses are much cheaper, but they also don't offer the same things both Los Angeles County and Orange County do.
+
+## Limitations
+
+The data was collected on a specific date, so things may have changed by then. The problem is since they can change on a day-by-day basis, the data is not always the most accurate since houses can be taken off or rent could go up. Also, as mentioned earlier, there isn't variables that are about the city, as the only one I could think of that was in the dataset with any real impact was square feet, and I didn't feel like there was much of a difference between the counties' average square feet.
