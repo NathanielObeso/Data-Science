@@ -353,6 +353,11 @@ We can see that there is a 90% chance that the slope of the population model, as
 
 Los Angeles County and Orange County are both great places to live in, and the rent of the houses in those places are very similar. There doesn't appear to be a significant difference between the two counties. Riverside houses are much cheaper, but they also don't offer the same things both Los Angeles County and Orange County do.
 
+```{r}
+#| echo: false
+```
+
+
 ## Limitations
 
 The data was collected on a specific date, so things may have changed by then. The problem is since they can change on a day-by-day basis, the data is not always the most accurate since houses can be taken off or rent could go up. Also, as mentioned earlier, there isn't variables that are about the city, as the only one I could think of that was in the dataset with any real impact was square feet, and I didn't feel like there was much of a difference between the counties' average square feet.
