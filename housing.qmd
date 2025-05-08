@@ -107,7 +107,7 @@ ggplot(SoCalRent2025, aes(x = price, y = county)) +
      ) # Numerical summary of the boxplot
 ```
 
-This graph is displaying the amount of outliers that are present in the dataset in terms of price, and there are two are stick out like a sore thumb. Both are prices at or above $20000. The table is a numerical summary of the boxplots, which also shows the distribution of prices and shows how Orange County tends to have more expensive houses than the others, at least in this dataset. Both were created to show the distribution of prices by county.
+This graph is displaying the amount of outliers that are present in the dataset in terms of price, and there are two are stick out like a sore thumb. Both are prices at or above \$20000. The table is a numerical summary of the boxplots, which also shows the distribution of prices and shows how Orange County tends to have more expensive houses than the others, at least in this dataset. Both were created to show the distribution of prices by county.
 
 ```{r}
 #| label: investigating the outliers in terms of price
@@ -162,8 +162,8 @@ ggplot(SoCalRent2025_1, aes(x = min_sq_ft, y = type)) +
 ggplot(SoCalRent2025_1, aes(x = max_sq_ft, y = type)) +
    geom_boxplot() # using maximum square feet values
 ```
-This boxplot was created as a potential variable to explain square feet. We see from this graph that houses tend to be bigger than both condos and apartments. It is worth noting that apartments were the only things that had a range of values for their square feet, so not much changed between the condos and houses, but it is interesting that when we take the maximum square feet value for each apartment, they are very similar to condos.
 
+This boxplot was created as a potential variable to explain square feet. We see from this graph that houses tend to be bigger than both condos and apartments. It is worth noting that apartments were the only things that had a range of values for their square feet, so not much changed between the condos and houses, but it is interesting that when we take the maximum square feet value for each apartment, they are very similar to condos.
 
 ```{r}
 #| label: show each type of house by county
@@ -176,7 +176,6 @@ SoCalRent2025_1 %>%
 ```
 
 Now we have to explore the distribution of house type by county, and it appears very even except for Riverside only having 25 condos. This ties into the counties all having similar average square feet in their houses, whether they were using the minimums or maximums.
-
 
 Now, there are two different values due to some having ranges as part of their dataset. Here is a summary of the boxplots:
 
@@ -195,8 +194,8 @@ SoCalRent2025_1 %>%
        mean_sq_ft = mean(min_sq_ft)
      ) # five-number summary with minimum square feet values
 ```
-This first one is the square feet when taking all the minimum values for those in the range. We see there are places where they are very similar, such as the median, though the mean square feet of a residence in Orange County is relatively high compared to the mean square feet of the other two when using minimum values.
 
+This first one is the square feet when taking all the minimum values for those in the range. We see there are places where they are very similar, such as the median, though the mean square feet of a residence in Orange County is relatively high compared to the mean square feet of the other two when using minimum values.
 
 ```{r}
 #| label: updated summary of the maximum square feet values
@@ -261,8 +260,7 @@ ggplot(SoCalRent2025_1, aes(x = price, fill = condition)) +
   scale_fill_manual(values = c("True" = "red", "False" = "blue"), labels = c(">=6000", "<6000")) # legend to show the condition
 ```
 
-We can see that both Los Angeles County and Orange County have houses at or above $6000 in rent while none in Riverside have higher than about \$5000. This definitely shows that Riverside houses tend to be cheaper to rent than those in Los Angeles County and Orange County. However, what I am mainly interested in is what the relationship between Los Angeles County and Orange County is like.
-
+We can see that both Los Angeles County and Orange County have houses at or above \$6000 in rent while none in Riverside have higher than about \$5000. This definitely shows that Riverside houses tend to be cheaper to rent than those in Los Angeles County and Orange County. However, what I am mainly interested in is what the relationship between Los Angeles County and Orange County is like.
 
 ## Modeling
 
@@ -285,8 +283,8 @@ SoCalRent_dist <- bayes_SoCalRent %>%
 
 head(SoCalRent_dist)
 ```
-Here, we are making a posterior distribution, which reflects updated beliefs after we have seen the housing rent data. This gives us an idea of what the relationship between the counties looks like.
 
+Here, we are making a posterior distribution, which reflects updated beliefs after we have seen the housing rent data. This gives us an idea of what the relationship between the counties looks like.
 
 The reference level is LA county, and we are comparing it to Orange County and Riverside County.
 
@@ -353,12 +351,7 @@ We can see that there is a 90% chance that the slope of the population model, as
 
 ## Conclusion
 
-
-
 Los Angeles County and Orange County are both great places to live in, and the rent of the houses in those places are very similar. There doesn't appear to be a significant difference between the two counties. Riverside houses are much cheaper, but they also don't offer the same things both Los Angeles County and Orange County do.
-
-
-
 
 ## Limitations
 
