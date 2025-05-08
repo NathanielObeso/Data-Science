@@ -354,7 +354,7 @@ We can see that there is a 90% chance that the slope of the population model, as
 Los Angeles County and Orange County are both great places to live in, and the rent of the houses in those places are very similar. There doesn't appear to be a significant difference between the two counties. Riverside houses are much cheaper, but they also don't offer the same things both Los Angeles County and Orange County do.
 
 ```{r}
-#| echo: false
+SoCalRent1
 ```
 
 
