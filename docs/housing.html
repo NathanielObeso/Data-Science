@@ -134,6 +134,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link active" href="./housing.html" aria-current="page"> 
 <span class="menu-text">Comparing Rent Prices in SoCal Housing and Making Inferences</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./Project-Model-Selection-Encelia.html"> 
+<span class="menu-text">Encelia Flower Model Selection</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item compact">
@@ -563,8 +567,8 @@ Caused by warning in `if_else()`:
 <pre><code>
 SAMPLING FOR MODEL 'continuous' NOW (CHAIN 1).
 Chain 1: 
-Chain 1: Gradient evaluation took 4.3e-05 seconds
-Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.43 seconds.
+Chain 1: Gradient evaluation took 0.000218 seconds
+Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 2.18 seconds.
 Chain 1: Adjust your expectations accordingly!
 Chain 1: 
 Chain 1: 
@@ -581,15 +585,15 @@ Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
 Chain 1: 
-Chain 1:  Elapsed Time: 0.21 seconds (Warm-up)
-Chain 1:                0.042 seconds (Sampling)
-Chain 1:                0.252 seconds (Total)
+Chain 1:  Elapsed Time: 0.189 seconds (Warm-up)
+Chain 1:                0.039 seconds (Sampling)
+Chain 1:                0.228 seconds (Total)
 Chain 1: 
 
 SAMPLING FOR MODEL 'continuous' NOW (CHAIN 2).
 Chain 2: 
-Chain 2: Gradient evaluation took 9e-06 seconds
-Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.09 seconds.
+Chain 2: Gradient evaluation took 1e-05 seconds
+Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.1 seconds.
 Chain 2: Adjust your expectations accordingly!
 Chain 2: 
 Chain 2: 
@@ -606,9 +610,9 @@ Chain 2: Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
 Chain 2: 
-Chain 2:  Elapsed Time: 0.258 seconds (Warm-up)
-Chain 2:                0.043 seconds (Sampling)
-Chain 2:                0.301 seconds (Total)
+Chain 2:  Elapsed Time: 0.243 seconds (Warm-up)
+Chain 2:                0.04 seconds (Sampling)
+Chain 2:                0.283 seconds (Total)
 Chain 2: 
 
 SAMPLING FOR MODEL 'continuous' NOW (CHAIN 3).
@@ -631,9 +635,9 @@ Chain 3: Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
 Chain 3: 
-Chain 3:  Elapsed Time: 0.057 seconds (Warm-up)
-Chain 3:                0.042 seconds (Sampling)
-Chain 3:                0.099 seconds (Total)
+Chain 3:  Elapsed Time: 0.053 seconds (Warm-up)
+Chain 3:                0.041 seconds (Sampling)
+Chain 3:                0.094 seconds (Total)
 Chain 3: 
 
 SAMPLING FOR MODEL 'continuous' NOW (CHAIN 4).
@@ -656,9 +660,9 @@ Chain 4: Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
 Chain 4: 
-Chain 4:  Elapsed Time: 0.17 seconds (Warm-up)
-Chain 4:                0.043 seconds (Sampling)
-Chain 4:                0.213 seconds (Total)
+Chain 4:  Elapsed Time: 0.162 seconds (Warm-up)
+Chain 4:                0.041 seconds (Sampling)
+Chain 4:                0.203 seconds (Total)
 Chain 4: </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>SoCalRent_dist <span class="ot">&lt;-</span> bayes_SoCalRent <span class="sc">%&gt;%</span> </span>

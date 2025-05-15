@@ -10,6 +10,7 @@ website:
         text: Home
       - about.qmd
       - housing.qmd
+      - Project-Model-Selection-Encelia.qmd
 
     right:
       - icon: github

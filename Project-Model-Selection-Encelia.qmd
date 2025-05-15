@@ -1,0 +1,543 @@
+---
+title: "Encelia Flower Model Selection"
+---
+
+## Motivation and Context
+
+```{r}
+#| label: do this first
+#| echo: false
+#| message: false
+
+here::i_am("Project-Model-Selection-Encelia.qmd")
+```
+
+*Encelia californica* is a plant in southern California that is pollinated frequently by bees. They are known as the California Bush Sunflower. *Encelia farinosa*, also known as desert brittle bush, is native to California deserts and frequently confused with *Encelia californica*. *Encelia californica* has yellow ray flowers and brown disk florets while *Encelia farnosa* has both yellow ray flowers and disk florets, with lighter-grayer green leaves than *Encelia californica*. California Bush Sunflowers also tend to be bigger than brittlebush in most areas. Both are found in the Fullerton Arboretum, where we went on a trip to get experience collecting data within our school. Through predictive modeling, we are trying to figure out what best predicts these flowers.
+
+Being able to distinguish between these two species would be useful since one is an actual sunflower while one is just a bush. Both have slightly different uses: for example, a California Bush Sunflower is useful for controlling erosion while a brittlebush is useful for glue.
+
+## Main Objective
+
+The objective of this project is to be able to predict whether a flower is an *Encelia californica* or an *Encelia farinosa* using data that was gathered at the Fullerton Arboretum. Through four variables and a brief description of the differences between the flowers, we have an idea of what models we select. We are performing model selection in order to determine what is the best predictor of flowers.
+
+## Packages Used In This Analysis
+
+```{r}
+#| label: load packages
+#| message: false
+#| warning: false
+
+library(here)
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(rsample)
+library(purrr)
+library(yardstick)
+library(tidyr)
+library(broom)
+```
+
+| Package | Use |
+|--------------------------------|----------------------------------------|
+| [here](https://github.com/jennybc/here_here) | to easily load and save data |
+| [readr](https://readr.tidyverse.org/) | to import the CSV file data |
+| [dplyr](https://dplyr.tidyverse.org/) | to massage and summarize data |
+| [ggplot2](https://ggplot2.tidyverse.org/) | to create nice-looking and informative graphs |
+| [rsample](https://rsample.tidymodels.org/) | to split data into training and test sets |
+| [purrr](https://purrr.tidyverse.org) | to run the cross-validation |
+| [yardstick](https://yardstick.tidymodels.org) | to evalute the accuracy of the models |
+| [tidyr](https://tidyr.tidyverse.org) | to "pivot" the predictions data frame so that each row represents 1 model |
+
+## Design and Data Collection
+
+The data was collected from the Fullerton Arboretum by our class. We had 5 different pairs survey 20 different flowers each. We decided to track four variables: The number of rays/petals of the flower; the disk diameter, which is the diameter of the inside of the flower; the ray diameter, which is the diameter of a ray/petal in the flower, and the stem length, which was measured from the bottom to the top of the flower. Species is labeled as 'F' for *Encelia farinosa* or 'C' for *Encelia californica*.
+
+One group forgot to measure stem length of the flowers that they sampled, which explains why some of the data values were NA. Additionally, it is very possible that some of these flowers are the exact same because different groups may have went to the exact same flower or a flower was surveyed twice. It is also possible that these are not exact measurements, and there may be different data for the same class. We have decided to round each numerical value that is continuous to the nearest tenth, whereas some other person may round to two decimal points. Also, we may have different definitions of the variables, such as stem length being only to nearest branch. We may also have different variables entirely from what another person chose, but we chose 4 variables, all numerical, whereas somebody may use a categorical variable such as the color of the disk floret. We did try to get flowers in various locations, as location can also affect characteristics of a flower.
+
+## Training-Test Split
+
+```{r}
+#| label: load data
+
+encelia_data <- readr::read_csv(here::here("../Data", "Encelia Classification Data Collection - Sheet1.csv"))
+
+encelia_data <- encelia_data %>% # spell out flower names
+  mutate(
+    Species = if_else(Species == "F", "Encelia Farinosa", "Encelia Californica") %>% 
+      as.factor()
+  )
+```
+
+I ultimately decided to spell out the names of the flowers for exploratory data analysis purposes when we see the graphs later.
+
+```{r}
+#| label: create training and test sets
+
+set.seed(3)
+encelia_split <- initial_split(
+  encelia_data,
+  strata = Species,
+  prop = 0.80
+) # 80% of flowers will go to the training set, and roughly the same proportion of species will go in each set
+  
+encelia_train <- training(encelia_split)
+encelia_test <- testing(encelia_split)
+
+```
+
+Training and test sets are necessary because we are training a model on the training set, doing explanatory data analysis and modeling on the training set. We are then using the test set to validate our predictions and models to see how accurate it is. By doing this, we are using the encelia training set to do some exploration and model fitting before testing the models on the testing set to see how well they predict the species of the flower.
+
+## Exploratory Data Analysis
+
+```{r}
+#| label: plot to explore number of rays between species
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = number_rays, y = Species)
+) +
+  geom_jitter(height = 0.1) +
+  labs(
+    x = "Number of Rays"
+  )
+
+encelia_train %>% 
+  group_by(Species) %>% 
+  summarize(
+    average_rays = mean(number_rays)
+  )
+```
+
+This graph is created to explore the differences in number of rays between the two Encelia flowers. It is evident here that *Encelia Californica* has more rays on average than *Encelia Farinosa*. It is also shown in the summary that comes with it.
+
+```{r}
+#| label: plot to explore disk diameter between species
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = disk_diameter, y = Species)
+) +
+  geom_jitter(height = 0.1) +
+  labs(
+    x = "Disk Diameter (cm)"
+  )
+```
+
+This model is created to explore the differences between the two species in terms of their disk diameter. The flowers appear to be the same in terms of disk diameter according to this plot. I can eliminate this from my list of possible models because disk diameter (at least by itself) is not a good predictor of the species of the plant due to how similar they are.
+
+```{r}
+#| label: show the relationship between the number of rays and disk diameter
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = disk_diameter,
+                y = number_rays,
+                color = Species,
+                shape = Species
+  )
+) +
+  geom_point() +
+  labs(
+    title = "Number of Rays vs Disk Diameter",
+    y = "Number of Rays",
+    x = "Disk Diameter (cm)"
+  ) +
+  scale_color_manual(
+    values = c("#fdb827", "#542583")
+  ) +
+  scale_shape_manual(
+    values = c(1, 17)
+  ) +
+  geom_smooth(method = "loess", se = FALSE)
+  
+```
+
+It caught my attention that the disk diameters of the plants were the same, but not the average number of rays per plant. I was curious to investigate the relationship between the two, and while there appears to be no relationship for *Encelia Farinosa*, it seems that as the disk diameter increases, the number of rays on an *Encelia Californica* increases. It's not convincing enough to warrant doing a model using these two, so I'll eliminate this from my possible models.
+
+```{r}
+#| label: plot that explores differences between species in terms of ray diameter
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = ray_diameter, y = Species)
+) +
+  geom_jitter(height = 0.1) +
+  labs(
+    x = "Ray Diameter (cm)"
+  )
+
+encelia_train %>% 
+  group_by(Species) %>% 
+  summarize(
+    avg_ray_diameter = mean(ray_diameter)
+  )
+```
+
+This graph explores the differences in ray diameter between species. They look very similar except that the *Encelia Californica*, on average, has a higher ray diameter than *Encelia Farinosa* by about 1 cm. However, their variability is about the same. While it may not a great predictor by itself, we can see there is some differences that could make it a viable predictor.
+
+However, if we take a look at it with other variables, we can potentially see related categories.
+
+```{r}
+#| label: plot that explores relationship between ray diameter and number of rays
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(y = number_rays,
+                x = ray_diameter,
+                color = Species,
+                shape = Species
+  )
+) +
+  geom_point() +
+  labs(
+    title = "Number of Rays vs Ray Diameter",
+    y = "Number of Rays",
+    x = "Ray Diameter (cm)"
+  ) +
+  scale_color_manual(
+    values = c("#fdb827", "#542583")
+  ) +
+  scale_shape_manual(
+    values = c(1, 17)
+  ) +
+  geom_smooth(method = "loess", se = FALSE)
+```
+
+Here, we are looking at the relationship between the number of rays and the ray diameter. There appears to be no relationship between these two variables, though there are clusters that suggest certain areas are exclusively a certain species.
+
+```{r}
+#| label: plot that explores the relationship between the ray and disk diameters
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = ray_diameter,
+                y = disk_diameter,
+                color = Species,
+                shape = Species
+  )
+) +
+  geom_point() +
+  labs(
+    title = "Ray Diameter vs Disk Diameter",
+    y = "Disk Diamater (cm)",
+    x = "Ray Diameter (cm)"
+  ) +
+  scale_color_manual(
+    values = c("#fdb827", "#542583")
+  ) +
+  scale_shape_manual(
+    values = c(1, 17)
+  ) +
+  geom_smooth(method = "loess", se = FALSE)
+```
+
+Here, we are looking at the relationship between ray diameter and disk diameter. There is a relationship between ray diameter and disk diameter for *Encelia Farinosa*, but there is a lot of overlap between the two around the middle of the graph. The two variables combined would be an interesting predictor for species given that there are quite a few *Encelia Farinosa* with small disk and ray diameters as well as *Encelia Californica* with large disk and ray diameters.
+
+```{r}
+#| label: plot that explores differences in stem length between species
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = stem_length, y = Species)
+) +
+  geom_jitter(height = 0.1) +
+  labs(
+    x = "Stem Length (cm)"
+  )
+```
+
+This is definitely an excellent predictor for flowers since we can clearly see that *Encelia Californica* tend to have a much higher stem length than *Encelia Farinosa*. Next, I want to see how it relates to other variables.
+
+```{r}
+#| label: plot that shows relationship between stem length and number of rays
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = number_rays,
+                y = stem_length,
+                color = Species,
+                shape = Species
+  )
+) +
+  geom_point() +
+  labs(
+    title = "Stem Length vs Number of Rays",
+    y = "Stem Length (cm)",
+    x = "Number of Rays"
+  ) +
+  scale_color_manual(
+    values = c("#fdb827", "#542583")
+  ) +
+  scale_shape_manual(
+    values = c(1, 17)
+  ) +
+  geom_smooth(method = "loess", se = FALSE)
+```
+
+There is no relationship between these two variables. However, given that both are strong predictors by themselves, we can try to see how good they are combined.
+
+```{r}
+#| label: plot that shows relationship between disk diameter and stem length
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = disk_diameter,
+                y = stem_length,
+                color = Species,
+                shape = Species
+  )
+) +
+  geom_point() +
+  labs(
+    title = "Stem Length vs Disk Diameter",
+    y = "Stem Length (cm)",
+    x = "Disk Diameter (cm)"
+  ) +
+  scale_color_manual(
+    values = c("#fdb827", "#542583")
+  ) +
+  scale_shape_manual(
+    values = c(1, 17)
+  ) +
+  geom_smooth(method = "loess", se = FALSE)
+```
+
+Looking to see if any relationship exists between stem length and disk diameter, I found no relationship and no clear way to predict *Encelia Farinosa*. This is not a good predictor combination, and I might as well have used stem length.
+
+```{r}
+#| label: plot that shows relationship between ray diameter and stem length
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = ray_diameter,
+                y = stem_length,
+                color = Species,
+                shape = Species
+  )
+) +
+  geom_point() +
+  labs(
+    title = "Stem Length vs Ray Diameter",
+    y = "Stem Length (cm)",
+    x = "Ray Diameter (cm)"
+  ) +
+  scale_color_manual(
+    values = c("#fdb827", "#542583")
+  ) +
+  scale_shape_manual(
+    values = c(1, 17)
+  ) +
+  geom_smooth(method = "loess", se = FALSE)
+```
+
+The final relationship to look at is ray diameter vs stem length. While there doesn't seem to be a relationship between the two variables in the groups, there's potential for predicting *Encelia Farinosa* and *Encelia Californica* using these two predictors.
+
+## Modeling
+
+So, after looking at the graphs and summaries above, these are the following models I came up with that I feel like are really good predictors based on my explanatory data analysis:
+
+-   Number of Rays
+
+-   Stem Length
+
+-   Stem Length + Number of Rays
+
+-   Ray Diameter + Number of Rays
+
+-   Ray Diameter + Disk Diameter
+
+-   Stem Length + Ray Diameter
+
+-   Ray Diameter
+
+I also believe that doing a combination of Number of Rays, Ray Diameter, and Stem Length would also be a decent model to explore as the flowers. They have big differences in number of rays and stem length, and some variation in ray diameter, so I think combining these three would make for a great prediction. As I said in the context, *Encelia Californica* tend to be bigger than *Encelia Farinosa*, and those three attributes are what they tend to be bigger in.
+
+```{r}
+#| label: check what is being predicted
+
+contrasts(encelia_train$Species)
+
+```
+
+Anyways, with the potential predictors being identified, we will perform logistic regression. Logistic regression is the probability that an observation is categorized as something. In this case, we are looking at the probability a flower is an *Encelia Farinosa* vs an *Encelia Californica* based on characteristics. This is done so that we see how well models can predict the species of the flowers and how effectively it can tell the difference between the two.
+
+We start off by making some folds. These give us non-overlapping subsets of the training set that, with the exception of one, we will be testing our model on.
+
+```{r}
+#| label: create folds
+
+set.seed(3)
+encelia_cv <- encelia_train %>% 
+  vfold_cv(
+    v = 5, # 5-fold cv
+    repeats = 1 # one unique prediction per observation in training set
+  )
+```
+
+After we have made the folds, we will now use the models that I believe are good predictors of the plant species.
+
+```{r}
+#| label: function to fit models and make predictions
+
+encelia_predictions <- function(split){
+  # this function takes in cross-validated splits
+  
+  train <- analysis(split)
+  valid <- assessment(split)
+  
+  glm_null <- glm(Species ~ 1, data = train, family = "binomial") # the null model is there, as always, to see which, if any, of those possible predictors are worse than the null model
+  glm1 <- glm(Species ~ number_rays, data = train, family = "binomial")
+  glm2 <- glm(Species ~ stem_length, data = train, family = "binomial")
+  glm3 <- glm(Species ~ stem_length + number_rays, data = train, family = "binomial")
+  glm4 <- glm(Species ~ ray_diameter + number_rays, data = train, family = "binomial")
+  glm5 <- glm(Species ~ disk_diameter + ray_diameter, data = train, family = "binomial")
+  glm6 <- glm(Species ~ stem_length + ray_diameter, data = train, family = "binomial")
+  glm7 <- glm(Species ~ ray_diameter, data = train, family = "binomial")
+  glm8 <- glm(Species ~ number_rays + stem_length + ray_diameter, data = train, family = "binomial")
+  
+  valid_predictions <- valid %>% 
+    mutate(
+      pred_null = predict(glm_null, newdata = valid, type = "response"),
+      pred_num_rays = predict(glm1, newdata = valid, type = "response"),
+      pred_stem_len = predict(glm2, newdata = valid, type = "response"),
+      pred_stem_len_num_rays = predict(glm3, newdata = valid, type = "response"),
+      pred_ray_dia_num_rays = predict(glm4, newdata = valid, type = "response"),
+      pred_disk_dia_ray_dia = predict(glm5, newdata = valid, type = "response"),
+      pred_stem_len_ray_dia = predict(glm6, newdata = valid, type = "response"),
+      pred_ray_dia = predict(glm7, newdata = valid, type = "response"),
+      pred_3 = predict(glm8, newdata = valid, type = "response")
+    )
+  
+  return(valid_predictions)
+}
+
+```
+
+```{r}
+#| label: run encelia_predictions on all splits
+
+mapped_predictions <- map(
+  encelia_cv$splits, # list to input to function
+  encelia_predictions # function to apply
+)
+
+mapped_predictions_df <- mapped_predictions %>% 
+  bind_rows(
+    .id = "fold" # give an id column to know which fold
+  )
+
+mapped_predictions_df
+
+```
+
+We are creating this function to output the probabilities of the plant actually being an *Encelia farinosa* based on each model's predictors. This fits models on the training set before outputting predictions in the form of probabilities for how likely the flower is an *Encelia farinosa*. They are displayed on the data frame above along with the folds they were in.
+
+
+```{r}
+#| label: show the prediction probabilities
+
+pred_all <- mapped_predictions_df %>% 
+  pivot_longer(
+    cols = starts_with("pred"),
+    names_to = "model",
+    values_to = ".pred_F"
+  ) %>% 
+  mutate(
+    .pred_C = 1-.pred_F
+  )
+
+pred_all
+```
+Here, we are seeing the probabilities of the flower being *Encelia farinosa* and *Encelia californica* based on the models' predictor variables.
+
+```{r}
+#| label: get average Brier score
+
+brier_all_models <- pred_all %>% 
+  group_by(model, fold) %>% 
+  brier_class(
+    truth = Species,
+    .pred_C
+  )
+
+brier_all_models %>% 
+  ungroup() %>% 
+  group_by(model) %>% 
+  summarize(
+    mean_brier = mean(.estimate),
+    se_brier = sd(.estimate)/sqrt(5) # 5 estimates
+  ) %>% 
+  arrange(mean_brier)
+
+```
+
+By computing the Brier scores, we get an idea of how good the model is through summing up the squares of the errors and then finding the mean of these squared errors.
+
+```{r}
+#| label: fit final model
+
+encelia_glm_final <- glm(Species ~ stem_length + number_rays, data = encelia_train, family = "binomial")
+
+```
+
+```{r}
+#| label: class predictions
+
+encelia_class_predictions <- encelia_glm_final |>
+  augment(newdata = encelia_test, type.predict = "response") %>% 
+  mutate(
+    .pred_F = .fitted,
+    .pred_C = 1 - .pred_F,
+    .pred_class = if_else(.fitted >= 0.5, "Encelia Farinosa", "Encelia Californica") %>% 
+      as.factor()
+  )
+
+encelia_class_predictions %>% 
+  select(Species, number_rays, stem_length, .pred_F, .pred_C, .pred_class)
+```
+We then fit the best model onto the test set. The model I selected was the model that predicts species based on stem length and number of rays. Not only did it have the lowest Brier Score, with the next closest one adding ray diameter to these two variables, but they also had the most notable differences between the species.
+
+Now that we have fit the final models on the test set, we will compute the confusion matrix to see how accurate the model is:
+```{r}
+#| label: get confusion matrix
+
+encelia_class_predictions %>% 
+  conf_mat(
+    truth = Species,
+    estimate = .pred_class
+  )
+```
+Based on this confusion matrix, it is extremely accurate! In this test set, it only predicted two flowers wrong, one of each species. In total, it predicted 7 of 8 *Encelia Californica* flowers correctly and 8 of 9 *Encelia Farinosa* flowers correctly, and it overall predicted 15 of the 17 flowers correctly.
+
+## Insights
+
+```{r}
+#| label: create and plot ROC curve
+
+roc_df <- encelia_class_predictions %>% 
+  roc_curve(
+    truth = Species,
+    .fitted,
+    event_level = "second"
+  )
+
+autoplot(roc_df)
+
+encelia_class_predictions %>% 
+  roc_auc(
+    truth = Species,
+    .fitted,
+    event_level = "second"
+  )
+
+```
+This receiver operating characteristic (ROC) curve shows the true positive and false positive rates for *Encelia Farinosa*. We see that everything is above the dotted line, which means that the model selected outputs a good prediction at all thresholds. The area under the curve is 0.8611111, which isn't perfect, but it is better than a coin flip chance at predicting *Encelia Farinosa* correctly at each decision threshold. Considering that *Encelia Californica* is bigger than an *Encelia Farinosa*, 
+
+
+```{r}
+#| label: see the incorrectly predicted flowers
+
+encelia_class_predictions %>% 
+  filter(Species != .pred_class)
+
+```
+For these two flowers that were incorrectly predicted, both have the same number of rays. However, something jumps out: the species that was an *Encelia Farinosa* was predicted an *Encelia Californica* because of its stem length of 23 cm, in which a large stem length is typical of *Encelia Californica*. On the other side, an *Encelia Californica* was predicted as an *Encelia Farinosa* has a stem length of 3 cm and *Encelia Farinosa* have shorter stem lengths than *Encelia Californica* on average. I believe these are outliers and that they were either misclassified or are an oddity in a group of flowers that were predcited correctly otherwise.
