@@ -18,7 +18,7 @@ SoCalRent2025 <- readr::read_csv(here::here("../Data", "2025SoCalRent - Sheet1.c
 
 ## Main Objective
 
-The objective is to do some data wrangling to remove some prices that are clear outliers before doing analysis on the rest of the data. We are then going to make an inference about the relationship between price and county using Bayesian Statistics. We collected data on 7 variables: `baths` means number of bathrooms in the house while `beds` means the number of bedrooms in the house.
+The objective is to compare rent prices in Los Angeles County and Orange County. My goal is to see the difference between the two  I am accomplishing this by doing some data wrangling to remove some prices that are clear outliers before doing analysis on the rest of the data. We are then going to make an inference about the relationship between price and county using Bayesian Statistics. We collected data on 7 variables: `baths` means number of bathrooms in the house while `beds` means the number of bedrooms in the house.
 
 ```{r}
 #| label: libraries
@@ -32,7 +32,7 @@ library(rstanarm)
 
 ## Design and Data Collection
 
-The data was collected from somebody looking on Zillow for houses: it shows the city, price, beds, baths, area, type, and county that the data was collected in. This was collected at a specific date in 2025 (April 15), however, which very well could limit the analysis as it may not reflect things happening a month later when this project is finished. The variables also aren't the best at giving insight as to why there may be a difference in prices between the cities because they only describe the house, not the other variables of the city.
+The data was collected from somebody looking on Redfin for houses (credit to Natalie): it shows the city, price, beds, baths, area, type, and county that the data was collected in. This was collected at a specific date in 2025 (April 15), however, which very well could limit the analysis as it may not reflect things happening a month later when this project is finished. The variables also aren't the best at giving insight as to why there may be a difference in prices between the cities because they only describe the house, not the other variables of the city.
 
 ## Data Massaging
 
@@ -264,7 +264,7 @@ We can see that both Los Angeles County and Orange County have houses at or abov
 
 ## Modeling
 
-In order to see the true relationship, let's do some Bayesian Inference.
+In order to see the true relationship, let's do some Bayesian Inference. This allows us to use data we have gathered and explored while incorporating it into a model.
 
 ```{r}
 #| label: fit Bayesian regression model
@@ -273,7 +273,7 @@ bayes_SoCalRent <- stan_glm(
   price ~ county,
   data = SoCalRent2025_1,
   family = "gaussian",
-  prior = normal(location = 3, autoscale = TRUE),
+  prior = normal(location = 1000, autoscale = TRUE),
   prior_intercept = default_prior_intercept(),
   seed = 1
 )
@@ -283,10 +283,9 @@ SoCalRent_dist <- bayes_SoCalRent %>%
 
 head(SoCalRent_dist)
 ```
+I chose the prior of a normal distribution centered around 1000. I think that there is some difference between Orange County and Los Angeles County in terms of rent prices and that Orange County houses tend to be higher than Los Angeles County houses. This makes a posterior distribution, which reflects updated beliefs after we have seen the housing rent data. This gives us an idea of what the relationship between the counties looks like.
 
-Here, we are making a posterior distribution, which reflects updated beliefs after we have seen the housing rent data. This gives us an idea of what the relationship between the counties looks like.
-
-The reference level is LA county, and we are comparing it to Orange County and Riverside County.
+The reference level is Los Angeles County, which means that Orange County and Riverside County will appear in the table as their respective variables, but not Los Angeles County since we are comparing both Orange County and Riverside County to Los Angeles County.
 
 ```{r}
 #| label: histogram of the posterior distribution
@@ -303,41 +302,6 @@ plot(
 We can see from the graph that the rent in LA is clearly higher than in Riverside, but there doesn't seem to be a significant difference between the rents of LA and Orange County.
 
 ```{r}
-#| label: make some posterior predictions about houses in different counties compared to LA
-
-predicted_house <- data.frame(
-  county = c("OC", "RIV")
-) # using the other two counties
-
-predicted_rents <- bayes_SoCalRent %>% 
-  posterior_predict(
-    newdata = predicted_house,
-    draws = 1000,
-    seed = 1
-  ) # make posterior predictions
-```
-
-```{r}
-#| label: creates a histogram of predicted rents
-predicted_rents_df <- predicted_rents %>% 
-  as.data.frame()
-
-ggplot(data = predicted_rents_df,
-       mapping = aes(x = `1`)
-       ) +
-  geom_histogram(
-    bins = 20
-  ) +
-  labs(title = "Renting a House by county",
-       x = "Rent Price",
-       y = "Number of Simulated Houses"
-  )
-
-```
-
-Predicted rent prices are pretty interesting, I experimented with a few priors, but all of them predicted negative rent price, so I just went with what I felt worked best.
-
-```{r}
 #| label: create posterior interval
 
 bayes_SoCalRent |>
@@ -347,7 +311,9 @@ bayes_SoCalRent |>
     )
 ```
 
-We can see that there is a 90% chance that the slope of the population model, assuming everything else stays constant, for an Orange County house compared to one in LA is between -100.7536 and 842.4131. This implies that there is no distinct difference in prices between the counties of LA and OC. There is also a 90% chance that the slope of the population model, assuming everything else stays constant, for a Riverside house compared to one in LA is between -2094.6339 and -1135.4284, meaning that Riverside houses tend to be cheaper to rent than LA houses.
+This interval is a numerical summary of the histogram above. We can see that there is a 90% chance that the slope of the population model, assuming everything else stays constant, for an Orange County house compared to one in LA is between -76.47405 and 841.7148. This implies that there is no distinct difference in prices between the counties of LA and OC. There is also a 90% chance that the slope of the population model, assuming everything else stays constant, for a Riverside house compared to one in LA is between -2090.49632 and -1140.3071, meaning that Riverside houses tend to be cheaper to rent than LA houses. These values show that it is pretty unlikely that the average price of a house in LA is lower than one in Riverside, as both ends of the interval are negative, meaning that all positive values are towards the right end of the tail.
+
+Doing Bayesian Inference allows us to make statements about our model relating county and price, with an estimated probability of 90% that the true model sees no relationship between the county a house is in and its rent price between the counties of LA and Orange when every other variable is the same. Between LA County and Riverside County, however, there is an approximately 90% chance that the true model has houses in LA County at higher prices than Riverside County should every other variable be the same.
 
 ## Conclusion
 
