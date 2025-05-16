@@ -315,6 +315,10 @@ This interval is a numerical summary of the histogram above. We can see that the
 
 Doing Bayesian Inference allows us to make statements about our model relating county and price, with an estimated probability of 90% that the true model sees no relationship between the county a house is in and its rent price between the counties of LA and Orange when every other variable is the same. Between LA County and Riverside County, however, there is an approximately 90% chance that the true model has houses in LA County at higher prices than Riverside County should every other variable be the same.
 
+
+
+
+
 ## Conclusion
 
 Los Angeles County and Orange County are both great places to live in, and the rent of the houses in those places are very similar. There doesn't appear to be a significant difference between the two counties. Riverside houses are much cheaper, but they also don't offer the same things both Los Angeles County and Orange County do.

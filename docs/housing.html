@@ -200,7 +200,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="main-objective" class="level2">
 <h2 class="anchored" data-anchor-id="main-objective">Main Objective</h2>
-<p>The objective is to do some data wrangling to remove some prices that are clear outliers before doing analysis on the rest of the data. We are then going to make an inference about the relationship between price and county using Bayesian Statistics. We collected data on 7 variables: <code>baths</code> means number of bathrooms in the house while <code>beds</code> means the number of bedrooms in the house.</p>
+<p>The objective is to compare rent prices in Los Angeles County and Orange County. My goal is to see the difference between the two I am accomplishing this by doing some data wrangling to remove some prices that are clear outliers before doing analysis on the rest of the data. We are then going to make an inference about the relationship between price and county using Bayesian Statistics. We collected data on 7 variables: <code>baths</code> means number of bathrooms in the house while <code>beds</code> means the number of bedrooms in the house.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -239,7 +239,7 @@ This is rstanarm version 2.32.1
 </section>
 <section id="design-and-data-collection" class="level2">
 <h2 class="anchored" data-anchor-id="design-and-data-collection">Design and Data Collection</h2>
-<p>The data was collected from somebody looking on Zillow for houses: it shows the city, price, beds, baths, area, type, and county that the data was collected in. This was collected at a specific date in 2025 (April 15), however, which very well could limit the analysis as it may not reflect things happening a month later when this project is finished. The variables also aren’t the best at giving insight as to why there may be a difference in prices between the cities because they only describe the house, not the other variables of the city.</p>
+<p>The data was collected from somebody looking on Redfin for houses (credit to Natalie): it shows the city, price, beds, baths, area, type, and county that the data was collected in. This was collected at a specific date in 2025 (April 15), however, which very well could limit the analysis as it may not reflect things happening a month later when this project is finished. The variables also aren’t the best at giving insight as to why there may be a difference in prices between the cities because they only describe the house, not the other variables of the city.</p>
 </section>
 <section id="data-massaging" class="level2">
 <h2 class="anchored" data-anchor-id="data-massaging">Data Massaging</h2>
@@ -553,13 +553,13 @@ Caused by warning in `if_else()`:
 </section>
 <section id="modeling" class="level2">
 <h2 class="anchored" data-anchor-id="modeling">Modeling</h2>
-<p>In order to see the true relationship, let’s do some Bayesian Inference.</p>
+<p>In order to see the true relationship, let’s do some Bayesian Inference. This allows us to use data we have gathered and explored while incorporating it into a model.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>bayes_SoCalRent <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  price <span class="sc">~</span> county,</span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> SoCalRent2025_1,</span>
 <span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"gaussian"</span>,</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">normal</span>(<span class="at">location =</span> <span class="dv">3</span>, <span class="at">autoscale =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">normal</span>(<span class="at">location =</span> <span class="dv">1000</span>, <span class="at">autoscale =</span> <span class="cn">TRUE</span>),</span>
 <span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior_intercept =</span> <span class="fu">default_prior_intercept</span>(),</span>
 <span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1</span></span>
 <span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -567,8 +567,8 @@ Caused by warning in `if_else()`:
 <pre><code>
 SAMPLING FOR MODEL 'continuous' NOW (CHAIN 1).
 Chain 1: 
-Chain 1: Gradient evaluation took 0.000218 seconds
-Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 2.18 seconds.
+Chain 1: Gradient evaluation took 3.3e-05 seconds
+Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.33 seconds.
 Chain 1: Adjust your expectations accordingly!
 Chain 1: 
 Chain 1: 
@@ -585,15 +585,15 @@ Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
 Chain 1: 
-Chain 1:  Elapsed Time: 0.189 seconds (Warm-up)
+Chain 1:  Elapsed Time: 0.637 seconds (Warm-up)
 Chain 1:                0.039 seconds (Sampling)
-Chain 1:                0.228 seconds (Total)
+Chain 1:                0.676 seconds (Total)
 Chain 1: 
 
 SAMPLING FOR MODEL 'continuous' NOW (CHAIN 2).
 Chain 2: 
-Chain 2: Gradient evaluation took 1e-05 seconds
-Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.1 seconds.
+Chain 2: Gradient evaluation took 7e-06 seconds
+Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.07 seconds.
 Chain 2: Adjust your expectations accordingly!
 Chain 2: 
 Chain 2: 
@@ -610,9 +610,9 @@ Chain 2: Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
 Chain 2: 
-Chain 2:  Elapsed Time: 0.243 seconds (Warm-up)
-Chain 2:                0.04 seconds (Sampling)
-Chain 2:                0.283 seconds (Total)
+Chain 2:  Elapsed Time: 0.482 seconds (Warm-up)
+Chain 2:                0.041 seconds (Sampling)
+Chain 2:                0.523 seconds (Total)
 Chain 2: 
 
 SAMPLING FOR MODEL 'continuous' NOW (CHAIN 3).
@@ -635,15 +635,15 @@ Chain 3: Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
 Chain 3: 
-Chain 3:  Elapsed Time: 0.053 seconds (Warm-up)
-Chain 3:                0.041 seconds (Sampling)
-Chain 3:                0.094 seconds (Total)
+Chain 3:  Elapsed Time: 0.078 seconds (Warm-up)
+Chain 3:                0.044 seconds (Sampling)
+Chain 3:                0.122 seconds (Total)
 Chain 3: 
 
 SAMPLING FOR MODEL 'continuous' NOW (CHAIN 4).
 Chain 4: 
-Chain 4: Gradient evaluation took 7e-06 seconds
-Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.07 seconds.
+Chain 4: Gradient evaluation took 5e-06 seconds
+Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.05 seconds.
 Chain 4: Adjust your expectations accordingly!
 Chain 4: 
 Chain 4: 
@@ -660,9 +660,9 @@ Chain 4: Iteration: 1600 / 2000 [ 80%]  (Sampling)
 Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
 Chain 4: 
-Chain 4:  Elapsed Time: 0.162 seconds (Warm-up)
-Chain 4:                0.041 seconds (Sampling)
-Chain 4:                0.203 seconds (Total)
+Chain 4:  Elapsed Time: 0.375 seconds (Warm-up)
+Chain 4:                0.04 seconds (Sampling)
+Chain 4:                0.415 seconds (Total)
 Chain 4: </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>SoCalRent_dist <span class="ot">&lt;-</span> bayes_SoCalRent <span class="sc">%&gt;%</span> </span>
@@ -671,16 +671,16 @@ Chain 4: </code></pre>
 <span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(SoCalRent_dist)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  (Intercept)   countyOC countyRIV    sigma
-1    4353.397  133.11832 -1909.751 2189.116
-2    4031.338  843.28230 -1674.247 2045.879
-3    4284.292 -107.72874 -1828.113 1974.467
-4    4264.231  -14.24143 -1747.386 2175.238
-5    3955.693  831.54330 -1172.684 2104.970
-6    4017.623  715.63911 -1099.151 2088.857</code></pre>
+1    4279.557 180.783403 -1673.708 2021.498
+2    4406.071 212.998323 -2040.091 1987.200
+3    3805.447 612.387084 -1083.080 2179.353
+4    4561.104   5.024844 -2036.222 2046.896
+5    3909.193 783.047129 -1630.367 2190.257
+6    4215.148 342.077022 -1855.671 2179.601</code></pre>
 </div>
 </div>
-<p>Here, we are making a posterior distribution, which reflects updated beliefs after we have seen the housing rent data. This gives us an idea of what the relationship between the counties looks like.</p>
-<p>The reference level is LA county, and we are comparing it to Orange County and Riverside County.</p>
+<p>I chose the prior of a normal distribution centered around 1000. I think that there is some difference between Orange County and Los Angeles County in terms of rent prices and that Orange County houses tend to be higher than Los Angeles County houses. This makes a posterior distribution, which reflects updated beliefs after we have seen the housing rent data. This gives us an idea of what the relationship between the counties looks like.</p>
+<p>The reference level is Los Angeles County, which means that Orange County and Riverside County will appear in the table as their respective variables, but not Los Angeles County since we are comparing both Orange County and Riverside County to Los Angeles County.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  bayes_SoCalRent,</span>
@@ -699,53 +699,19 @@ Chain 4: </code></pre>
 </div>
 <p>We can see from the graph that the rent in LA is clearly higher than in Riverside, but there doesn’t seem to be a significant difference between the rents of LA and Orange County.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>predicted_house <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">county =</span> <span class="fu">c</span>(<span class="st">"OC"</span>, <span class="st">"RIV"</span>)</span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>) <span class="co"># using the other two counties</span></span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>predicted_rents <span class="ot">&lt;-</span> bayes_SoCalRent <span class="sc">%&gt;%</span> </span>
-<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">posterior_predict</span>(</span>
-<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">newdata =</span> predicted_house,</span>
-<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">draws =</span> <span class="dv">1000</span>,</span>
-<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">seed =</span> <span class="dv">1</span></span>
-<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="co"># make posterior predictions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>predicted_rents_df <span class="ot">&lt;-</span> predicted_rents <span class="sc">%&gt;%</span> </span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> predicted_rents_df,</span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">1</span><span class="st">`</span>)</span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>       ) <span class="sc">+</span></span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(</span>
-<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">bins =</span> <span class="dv">20</span></span>
-<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Renting a House by county"</span>,</span>
-<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Rent Price"</span>,</span>
-<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Number of Simulated Houses"</span></span>
-<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="housing_files/figure-html/creates a histogram of predicted rents-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>Predicted rent prices are pretty interesting, I experimented with a few priors, but all of them predicted negative rent price, so I just went with what I felt worked best.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>bayes_SoCalRent <span class="sc">|&gt;</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">posterior_interval</span>(</span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">pars =</span> <span class="fu">c</span>(<span class="st">"countyOC"</span>, <span class="st">"countyRIV"</span>),</span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">prob =</span> <span class="fl">0.90</span></span>
-<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>bayes_SoCalRent <span class="sc">|&gt;</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">posterior_interval</span>(</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">pars =</span> <span class="fu">c</span>(<span class="st">"countyOC"</span>, <span class="st">"countyRIV"</span>),</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">prob =</span> <span class="fl">0.90</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                  5%        95%
-countyOC   -100.7536   842.4131
-countyRIV -2094.6339 -1135.4284</code></pre>
+<pre><code>                   5%        95%
+countyOC    -76.47405   841.7148
+countyRIV -2090.49632 -1140.3071</code></pre>
 </div>
 </div>
-<p>We can see that there is a 90% chance that the slope of the population model, assuming everything else stays constant, for an Orange County house compared to one in LA is between -100.7536 and 842.4131. This implies that there is no distinct difference in prices between the counties of LA and OC. There is also a 90% chance that the slope of the population model, assuming everything else stays constant, for a Riverside house compared to one in LA is between -2094.6339 and -1135.4284, meaning that Riverside houses tend to be cheaper to rent than LA houses.</p>
+<p>This interval is a numerical summary of the histogram above. We can see that there is a 90% chance that the slope of the population model, assuming everything else stays constant, for an Orange County house compared to one in LA is between -76.47405 and 841.7148. This implies that there is no distinct difference in prices between the counties of LA and OC. There is also a 90% chance that the slope of the population model, assuming everything else stays constant, for a Riverside house compared to one in LA is between -2090.49632 and -1140.3071, meaning that Riverside houses tend to be cheaper to rent than LA houses. These values show that it is pretty unlikely that the average price of a house in LA is lower than one in Riverside, as both ends of the interval are negative, meaning that all positive values are towards the right end of the tail.</p>
+<p>Doing Bayesian Inference allows us to make statements about our model relating county and price, with an estimated probability of 90% that the true model sees no relationship between the county a house is in and its rent price between the counties of LA and Orange when every other variable is the same. Between LA County and Riverside County, however, there is an approximately 90% chance that the true model has houses in LA County at higher prices than Riverside County should every other variable be the same.</p>
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
